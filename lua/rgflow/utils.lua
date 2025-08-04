@@ -52,7 +52,7 @@ function M.get_visual_selection(mode)
     -- nvim_buf_get_lines({buffer}, {start}, {end}, {strict_indexing})
     local lines = api.nvim_buf_get_lines(0, line_start, line_end, true)
     local offset = 1
-    if api.nvim_get_option("selection") ~= "inclusive" then
+    if api.nvim_get_option("selection") == "inclusive" then
         offset = 2
     end
     if mode == "v" then
