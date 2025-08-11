@@ -189,17 +189,24 @@ function M.delete_operator(mode)
     -- Don't create a new qf list, so use 'r'. Applies to colder/cnewer etc.
     vim.fn.setqflist({}, "r", {title = M.calc_qf_title(STATE, #qf_list), items = qf_list})
     M.apply_pattern_highlights()
-    -- When deleting a visual set of lines, it's more intuitive to jump to the
-    -- start of where the lines were deleted, rather then the current line place
-    -- I.e. say you delete from line 4 to 6, now on line 6 you have to new lines
-    -- above the cursor
-    if before then
-        vim.api.nvim_win_set_cursor(buffer, {math.min(#qf_list, line), col})
+
+    -- Only try to set cursor if there are items left in the list
+    if #qf_list > 0 then
+        -- When deleting a visual set of lines, it's more intuitive to jump to the
+        -- start of where the lines were deleted, rather then the current line place
+        -- I.e. say you delete from line 4 to 6, now on line 6 you have to new lines
+        -- above the cursor
+        if before then
+            vim.api.nvim_win_set_cursor(buffer, {math.min(#qf_list, line), col})
+        else
+            vim.fn.winrestview(win_pos)
+        end
+        -- Clear the current visual selection.
+        vim.fn.feedkeys(vim.api.nvim_replace_termcodes("<ESC>", true, nil, true), "n")
     else
-        vim.fn.winrestview(win_pos)
+        -- Close quickfix window when the list becomes empty
+        vim.cmd("cclose")
     end
-    -- Clear the current visual selection.
-    vim.fn.feedkeys(vim.api.nvim_replace_termcodes("<ESC>", true, nil, true), "n")
 end
 
 --- An operator to mark lines in the quickfix window.
